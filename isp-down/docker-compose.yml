@@ -1,0 +1,24 @@
+services:
+  isp-down:
+    build: .
+    container_name: isp-down
+    image: isp-down:latest
+    environment:
+      PYTHONUNBUFFERED: "1"
+    env_file:
+      - ./py_tokens.env
+    volumes:
+      - /NASty/Documents/Projects/isp-down-script/req-files:/req-files
+      - /NASty/Documents/Projects/isp-down-script/pwsh/message:/message
+      - ~/priority:/priority
+    restart: unless-stopped
+  pwsh:
+    image: mcr.microsoft.com/dotnet/sdk:9.0
+    build: /NASty/Documents/Projects/isp-down-script/pwsh
+    env_file:
+      - ./pwsh_tokens.env
+    volumes:
+      - /NASty/Documents/Projects/isp-down-script/pwsh/certs:/certs
+      - /NASty/Documents/Projects/isp-down-script/pwsh/message:/message
+    command: ["pwsh", "-NoLogo", "-File", "/okay.ps1"]
+    restart: unless-stopped

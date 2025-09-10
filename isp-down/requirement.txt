@@ -1,0 +1,7 @@
+thefuzz
+docker
+datetime
+requests
+msal
+requests.auth
+polyfuzz
