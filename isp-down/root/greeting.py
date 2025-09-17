@@ -5,15 +5,22 @@ path = "/message/greeting.txt"
 
 def write_greeting_to_file(script):
 
-    with open(path, "r") as file:
-        test = file.read()
+    try:
+        with open(path, "r") as file:
+            temp = file.read()
 
-    if test == '':
-        test = None
-    
-    if test == script:
-        logs("No changes, leaving greeting.txt as it was.")
-        return False
+        if temp == '':
+            temp = None
+        
+        if temp == script:
+            logs("No changes, leaving greeting.txt as it was.")
+            return False
+
+    except FileNotFoundError:
+        logs("greeting.txt file not found, no script to write.")
+        logs("Creating empty greeting.txt file.")
+        with open(path, "w") as file:
+            pass
 
     if not script:
         with open(path, "w") as file:

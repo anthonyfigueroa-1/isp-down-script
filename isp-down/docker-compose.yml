@@ -8,17 +8,18 @@ services:
     env_file:
       - ./py_tokens.env
     volumes:
-      - /NASty/Documents/Projects/isp-down-script/req-files:/req-files
-      - /NASty/Documents/Projects/isp-down-script/pwsh/message:/message
+      - /NASty/Documents/Projects/ids/req-files:/req-files
+      - /NASty/Documents/Projects/ids/pwsh/message:/message
       - ~/priority:/priority
-    restart: unless-stopped
-  pwsh:
-    image: mcr.microsoft.com/dotnet/sdk:9.0
-    build: /NASty/Documents/Projects/isp-down-script/pwsh
-    env_file:
-      - ./pwsh_tokens.env
-    volumes:
-      - /NASty/Documents/Projects/isp-down-script/pwsh/certs:/certs
-      - /NASty/Documents/Projects/isp-down-script/pwsh/message:/message
-    command: ["pwsh", "-NoLogo", "-File", "/okay.ps1"]
-    restart: unless-stopped
+    command: ["isp-down", "--dry-run"]
+    restart: no 
+#  pwsh:
+#    image: mcr.microsoft.com/dotnet/sdk:9.0
+#    build: /NASty/Documents/Projects/ids/pwsh/
+#    env_file:
+#      - ./pwsh_tokens.env
+#    volumes:
+#      - /NASty/Documents/Projects/ids/pwsh/certs:/certs
+#      - /NASty/Documents/Projects/ids/pwsh/message:/message
+#    command: ["pwsh", "-NoLogo", "-File", "/okay.ps1"]
+#    restart: unless-stopped

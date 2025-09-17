@@ -16,7 +16,7 @@ def set_categories(ticket):
     ticket["sub_category"] = "Troubleshooting"
 
 def set_tags(ticket):
-    ticket["tags"] = ["ISP"]
+    ticket["tags"] = ["ISP", "T1"]
 
 def set_status_page_id(ticket, status_page_id):
     ticket["status_page_incident_id"] = status_page_id

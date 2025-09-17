@@ -82,25 +82,25 @@ def check_down_tickets(isp_tickets):
 
         t = response.json()["ticket"]
 
-        id = ticket.get('id')
-        status = ticket.get('status')
+        id = t.get('id')
+        status = t.get('status')
 
         match status:
             case 2:
                 open_tickets.append(t)
-                logs(f"Status for #INC-{id} is ({status}). Adding ticket to open_tickets.json.")
+                logs(f"Status for #INC-{id} is (OPEN). Adding ticket to open_tickets.json.")
 
             case 3:
                 open_tickets.append(t)
-                logs(f"Status for #INC-{id} is ({status}). Adding ticket to open_tickets.json.")
+                logs(f"Status for #INC-{id} is (PENDING). Adding ticket to open_tickets.json.")
 
             case 4:
                 closed_tickets.append(t)
-                logs(f"Status for #INC-{id} is ({status}). Adding ticket id to closed_tickets.txt.")
+                logs(f"Status for #INC-{id} is (RESOLVED). Adding ticket id to closed_tickets.txt.")
 
             case 5:
                 closed_tickets.append(t)
-                logs(f"Status for #INC-{id} is ({status}). Adding ticket id to closed_tickets.txt.")
+                logs(f"Status for #INC-{id} is (CLOSED). Adding ticket id to closed_tickets.txt.")
 
             case _:
                 logs(f"Could not find valid status for #INC-{id}. Skipping ticket in function root.api.tickets.isp_tickets")
