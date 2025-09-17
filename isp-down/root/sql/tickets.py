@@ -3,7 +3,7 @@ import json
 
 from root.logger import logs
 
-#passing filtered_tickets here
+#passing group_filtered_tickets here
 def add_tickets_db(tickets):
     db = sqlite3.connect("/db/tickets.db")
 
@@ -15,6 +15,8 @@ def add_tickets_db(tickets):
                    (
                        ticket_id NUM PRIMARY KEY,
                        ninja_id NUM,
+                       used NUM,
+                       closed NUM,
                        json TEXT
                        )
                    """)
@@ -23,9 +25,9 @@ def add_tickets_db(tickets):
     for ticket in tickets:
         try:
             cursor.execute("""
-                           INSERT INTO tickets (ticket_id, json)
+                           INSERT INTO tickets (ticket_id, used, closed, json)
                            VALUES(?, ?)""",
-                           (ticket.get("id"), json.dumps(ticket)))
+                           (ticket.get("id"), False, False, json.dumps(ticket)))
             db.commit()
             logs(f"Added ticket #INC-{ticket.get('id')} to tickets.db")
 
@@ -57,7 +59,7 @@ def remove_tickets_db(tickets):
 
     db.close()
 
-def load_tickets_db():
+def query_tickets_db(ticket_id):
     db = sqlite3.connect("/db/tickets/db")
 
     cursor = db.cursor()
@@ -66,17 +68,10 @@ def load_tickets_db():
                    ATTACH tickets DATABASE AS tickets
                    """)
 
-    cursor.execute("SELECT json FROM tickets")
-    #can only grab info in tuples so will need to extract and append to seperate list
-    ticket_tup = cursor.fetchall()
+    cursor.execute("SELECT * FROM tickets WHERE id = ?", (ticket_id,))
+    ticket = cursor.fetchone()
 
     cursor.close()
     db.close()
 
-    tickets = []
-
-    for ticket in ticket_tup:
-        jsn = json.loads(ticket[0])
-        tickets.append(jsn)
-
-    return tickets
+    return ticket

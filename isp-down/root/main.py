@@ -27,6 +27,7 @@ def main():
 
         group_filtered_tickets = []
 
+# need to insert old open tickets into db instead of .json file
         old_open_tickets = load_open_tickets()
         tickets = get_tickets()
         departments = get_departments(count)

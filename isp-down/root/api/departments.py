@@ -2,13 +2,14 @@ from json.decoder import JSONDecodeError
 import requests
 from requests.auth import HTTPBasicAuth
 from root.logger import logs
+from root.sql.departments import add_dep_db
 import os
 import json
 
 filepath = "/req-files/departments.json"
 
 def get_departments(count):
-    if count % 100 == 0 or count == 1:
+    if count % 500 == 0 or count == 1:
         api = os.environ["ANDREW_API"]
         departments = [] 
         temp_list = []
@@ -24,7 +25,6 @@ def get_departments(count):
             temp_list.append(data)
             page += 1     
        
-        
         for temp_group in temp_list:
             for entry in temp_group:
                 departments.append(entry)
@@ -43,10 +43,9 @@ def get_departments(count):
     
 
 def save_departments(departments):
-    with open(filepath, "w") as file:
-        json.dump(fp=file, obj=departments, indent=4) 
+    add_dep_db(departments)
 
-    logs("Succefully cached departments to departments.json")
+    logs("Succefully cached departments to departments.db")
 
 def load_departments():
     try:

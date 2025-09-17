@@ -3,6 +3,7 @@ from root.set_fields import set_department, set_priority
 from root.api.tickets import post_private_note
 from root.resub import normalize
 from root.logger import logs
+from root.sql.departments import load_dep_db
 
 from polyfuzz import PolyFuzz
 
@@ -37,7 +38,7 @@ def match_componenets(ticket, componenets):
             logs(f"Found the id of {comp[1]}, that is associated to {best_name}")
             return comp[1]
 
-def match_department(ticket, departments):
+def match_department(ticket):
     department_list = []
     down_list = []
 
@@ -45,10 +46,12 @@ def match_department(ticket, departments):
     norm_down_site = normalize(down_site)
     down_list.append(norm_down_site)
 
+
+    departments = load_dep_db()
     for department in departments:
-        if department.get("name", "") and department.get("id", ""):
-            temp_name = normalize(department.get("name", ""))
-            department_list.append([temp_name, department.get("id", "")])
+        id, name = department
+        temp_name = normalize(name)
+        department_list.append([temp_name, id])
 
     department_names = [d[0] for d in department_list] 
 

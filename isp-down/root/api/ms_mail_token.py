@@ -40,6 +40,8 @@ def get_bearer_token():
 def patch_ooo(token, script):
     graph_url = "https://graph.microsoft.com/v1.0/users/support@eastwestcloud.com/mailboxSettings"
 
+    default = 'For faster service, use the "HelpDesk" icon on the left-hand side in Teams.'
+
     header = {
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json"
@@ -48,13 +50,15 @@ def patch_ooo(token, script):
     if not script:
         payload = {
                 "automaticRepliesSetting": {
-                    "status": "disabled"
+                    "status": "alwaysEnabled",
+                    "externalAudience": "all",
+                    "internalReplyMessage": default 
                     }
                 }
         response = requests.patch(graph_url, json=payload, headers=header)
 
         logs(f"OOO response code: {response.status_code}")
-        logs("No sites down, removing OOO status and message")
+        logs("No sites down, removing OOO status and message and using only default script.")
 
         return False
 
@@ -62,7 +66,7 @@ def patch_ooo(token, script):
             "automaticRepliesSetting": {
                 "status": "alwaysEnabled",
                 "externalAudience": "all",
-                "internalReplyMessage": script
+                "internalReplyMessage": f"{script}<br><br>{default}"
                 }
             }
     response = requests.patch(graph_url, json=payload, headers=header)
