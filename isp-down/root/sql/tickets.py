@@ -5,13 +5,12 @@ from root.logger import logs
 
 file = "/req-files/db/tickets.db"
 
-#passing group_filtered_tickets here
-def add_tickets_db(tickets):
+def create_tickets_db():
     db = sqlite3.connect(file)
 
     cursor = db.cursor()
 
-#Checks to make sure db(database) file exists, if not makes it
+    #Checks to make sure db(database) file exists, if not makes it
     cursor.execute("""
                    CREATE TABLE IF NOT EXISTS tickets
                    (
@@ -22,6 +21,19 @@ def add_tickets_db(tickets):
                        )
                    """)
     db.commit()
+
+    cursor.close()
+    db.close()
+
+#passing group_filtered_tickets here
+def add_tickets_db(tickets):
+    db = sqlite3.connect(file)
+
+    cursor = db.cursor()
+
+    cursor.execute("""
+                   ATTACH DATABASE tickets AS tickets
+                   """)
 
     for ticket in tickets:
         try:

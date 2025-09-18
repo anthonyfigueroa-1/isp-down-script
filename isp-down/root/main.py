@@ -12,7 +12,7 @@ from root.ooo_script import ooo_script
 from root.greeting import write_greeting_to_file
 from root.logger import logs
 from root.argparse import parse_args
-from root.sql.tickets import add_tickets_db, open_tickets_db, closed_tickets_db
+from root.sql.tickets import add_tickets_db, open_tickets_db, closed_tickets_db, create_tickets_db
 
 def main():
     count = 1
@@ -22,6 +22,8 @@ def main():
 #dry run section
     if dry_run is True:
         logs("Dry running script")
+
+        create_tickets_db()
 
         tickets = get_tickets()
         departments = get_departments(count)
@@ -73,6 +75,8 @@ def main():
         try:
             while True:
                 logs("Starting script")
+
+                create_tickets_db()
 
                 filtered_tickets = []
 
