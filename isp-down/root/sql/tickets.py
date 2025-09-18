@@ -3,9 +3,11 @@ import json
 
 from root.logger import logs
 
+file = "/req-files/db/tickets.db"
+
 #passing group_filtered_tickets here
 def add_tickets_db(tickets):
-    db = sqlite3.connect("/db/tickets.db")
+    db = sqlite3.connect(file)
 
     cursor = db.cursor()
 
@@ -15,7 +17,6 @@ def add_tickets_db(tickets):
                    (
                        ticket_id NUM PRIMARY KEY,
                        ninja_id NUM,
-                       used NUM,
                        closed NUM,
                        json TEXT
                        )
@@ -25,9 +26,9 @@ def add_tickets_db(tickets):
     for ticket in tickets:
         try:
             cursor.execute("""
-                           INSERT INTO tickets (ticket_id, used, closed, json)
-                           VALUES(?, ?)""",
-                           (ticket.get("id"), False, False, json.dumps(ticket)))
+                           INSERT INTO tickets (ticket_id, closed, json)
+                           VALUES(?, ?, ?)""",
+                           (ticket.get("id"), False, json.dumps(ticket)))
             db.commit()
             logs(f"Added ticket #INC-{ticket.get('id')} to tickets.db")
 
@@ -37,38 +38,55 @@ def add_tickets_db(tickets):
     cursor.close()
     db.close()
 
-#Passing closed/resolved ticket ID's here
-def remove_tickets_db(tickets):
-    db = sqlite3.connect("/db/tickets.db")
-
+def open_tickets_db():
+    db = sqlite3.connect(file)
     cursor = db.cursor()
 
     cursor.execute("""
-                   ATTACH tickets DATABASE AS tickets
+                   ATTACH DATABASE tickets AS tickets
                    """)
 
-    for id in tickets:
-        cursor.execute("""
-                       DELETE FROM tickets
-                       WHERE ticket_id IS ?
-                       """,
-                       (id,))
+    cursor.execute("SELECT ticket_id FROM tickets WHERE closed = False")
+    tickets = cursor.fetchmany()
+
+    open_tickets = []
+
+    cursor.close()
+    db.close()
+
+    for ticket in tickets:
+        open_tickets.append(ticket[0])
+
+    return open_tickets
+
+def closed_tickets_db(closed_tickets):
+    if not closed_tickets:
+        return
+
+    db = sqlite3.connect(file)
+    cursor = db.cursor()
+
+    cursor.execute("""
+                   ATTACH DATABASE tickets AS tickets
+                   """)
+
+    for ticket in closed_tickets:
+        cursor.execute("UPDATE tickets SET closed = True WHERE ticket_id = ? AND closed = False", (ticket,))
         db.commit()
 
     cursor.close()
-
     db.close()
 
 def query_tickets_db(ticket_id):
-    db = sqlite3.connect("/db/tickets/db")
+    db = sqlite3.connect(file)
 
     cursor = db.cursor()
 
     cursor.execute("""
-                   ATTACH tickets DATABASE AS tickets
+                   ATTACH DATABASE tickets AS tickets
                    """)
 
-    cursor.execute("SELECT * FROM tickets WHERE id = ?", (ticket_id,))
+    cursor.execute("SELECT * FROM tickets WHERE ticket_id = ?", (ticket_id,))
     ticket = cursor.fetchone()
 
     cursor.close()

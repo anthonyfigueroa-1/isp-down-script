@@ -15,22 +15,17 @@ def get_tickets():
     
     return tickets
 
-def post_ticket_note(ticket):
-    if not ticket:
-        return
+def post_ticket_note(id):
 
-    ticket_id = ticket.get("id", None)
-
-    url = f"https://eastwest.freshservice.com/api/v2/tickets/{ticket_id}/notes"
+    url = f"https://eastwest.freshservice.com/api/v2/tickets/{id}/notes"
     payload = {
             "private": True,
             "body": "Please use this article to troubleshoot and resolve this ticket if you need help:<br><br><a href='https://support.eastwestcloud.com/a/solutions/articles/5000093284' target='_blank' rel='noopener norefferer'><b>Network Outage: 'ISP is Down' Resolution & Fresh Service Status Page Updates</b></a>"
             }
 
-    if ticket_id:
-        response = requests.post(url, json=payload, auth=HTTPBasicAuth(api, "X"))
+    response = requests.post(url, json=payload, auth=HTTPBasicAuth(api, "X"))
 
-        logs(f"Response status code for request to POST private note about solutions article is {response.status_code}")
+    logs(f"Response status code for request to POST private note about solutions article is {response.status_code}")
 
 def put_ticket_updates(ticket):
     url = f"https://eastwest.freshservice.com/api/v2/tickets/{ticket.get('id')}"
@@ -50,8 +45,8 @@ def put_ticket_updates(ticket):
 
     logs(f"Response status code for request to PUT ticket fields is {response.status_code}")
 
-def post_private_note(ticket, string):
-    url = f"https://eastwest.freshservice.com/api/v2/tickets/{ticket.get('id')}/notes"
+def post_private_note(id, string):
+    url = f"https://eastwest.freshservice.com/api/v2/tickets/{id}/notes"
 
     payload = {
             "body": string,
@@ -65,18 +60,17 @@ def post_private_note(ticket, string):
 
 def check_down_tickets(isp_tickets):
     if not isp_tickets:
-        return None, None
+        return None
 
-    open_tickets = []
     closed_tickets = []
+    open_tickets = []
 
     header = {
             "Content-Type": "application/json"
             }
 
-    for ticket in isp_tickets:
-
-        url = f"https://eastwest.freshservice.com/api/v2/tickets/{ticket.get('id')}"
+    for ticket_id in isp_tickets:
+        url = f"https://eastwest.freshservice.com/api/v2/tickets/{ticket_id}"
 
         response = requests.get(url, headers=header, auth=HTTPBasicAuth(api, "X"))
 
@@ -87,23 +81,21 @@ def check_down_tickets(isp_tickets):
 
         match status:
             case 2:
-                open_tickets.append(t)
-                logs(f"Status for #INC-{id} is (OPEN). Adding ticket to open_tickets.json.")
+                open_tickets.append(id)
 
             case 3:
-                open_tickets.append(t)
-                logs(f"Status for #INC-{id} is (PENDING). Adding ticket to open_tickets.json.")
+                open_tickets.append(id)
 
             case 4:
-                closed_tickets.append(t)
-                logs(f"Status for #INC-{id} is (RESOLVED). Adding ticket id to closed_tickets.txt.")
+                closed_tickets.append(id)
+                logs(f"Status for #INC-{id} is (RESOLVED). Marking ticket as closed in database.")
 
             case 5:
-                closed_tickets.append(t)
-                logs(f"Status for #INC-{id} is (CLOSED). Adding ticket id to closed_tickets.txt.")
+                closed_tickets.append(id)
+                logs(f"Status for #INC-{id} is (CLOSED). Marking ticket as closed in database.")
 
             case _:
-                logs(f"Could not find valid status for #INC-{id}. Skipping ticket in function root.api.tickets.isp_tickets")
-                continue 
+                continue
 
-    return open_tickets, closed_tickets
+    isp_tickets = open_tickets
+    return closed_tickets

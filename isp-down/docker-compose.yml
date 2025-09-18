@@ -11,7 +11,7 @@ services:
       - /NASty/Documents/Projects/ids/req-files:/req-files
       - /NASty/Documents/Projects/ids/pwsh/message:/message
       - ~/priority:/priority
-    command: ["isp-down", "--dry-run"]
+    command: ["isp-down"]
     restart: no 
 #  pwsh:
 #    image: mcr.microsoft.com/dotnet/sdk:9.0

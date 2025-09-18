@@ -38,7 +38,7 @@ def match_componenets(ticket, componenets):
             logs(f"Found the id of {comp[1]}, that is associated to {best_name}")
             return comp[1]
 
-def match_department(ticket):
+def match_department(ticket, departments):
     department_list = []
     down_list = []
 
@@ -46,8 +46,6 @@ def match_department(ticket):
     norm_down_site = normalize(down_site)
     down_list.append(norm_down_site)
 
-
-    departments = load_dep_db()
     for department in departments:
         id, name = department
         temp_name = normalize(name)
@@ -64,7 +62,7 @@ def match_department(ticket):
 
     logs(f"Set department for ticket #INC-{ticket.get('id')} to {match} with a score of {similarity}")
 
-    if float(similarity) > 0.7:
+    if float(similarity) > 0.65:
         for department in department_list:
             if match in department[0]:
                 set_department(ticket, department[1])
@@ -82,7 +80,7 @@ def priority(ticket):
     site.append(site_name)
 
     urgent = []
-    with open("/priority/urgent.txt", "r") as file:
+    with open("/req-files/priority/urgent.txt", "r") as file:
         for line in file:
             line = normalize(line)
             urgent.append(line)
@@ -94,15 +92,15 @@ def priority(ticket):
     match = df.loc[0, "To"]
     similarity = df.loc[0, "Similarity"]
 
-    if float(similarity) > 0.7 and match:
+    if float(similarity) > 0.65 and match:
         set_priority(ticket, 4) 
-        print(f"Setting ticket #INC-{ticket.get('id')} to 4")
+        logs(f"Setting ticket #INC-{ticket.get('id')} to 4")
 
     #If name contains EWH will set tickets to a priority of 3(high)
     elif "ewh" in site_name:
         set_priority(ticket, 3) 
-        print(f"Setting ticket #INC-{ticket.get('id')} to 3")
+        logs(f"Setting ticket #INC-{ticket.get('id')} to 3")
 
     else:
         set_priority(ticket, 2) 
-        print(f"Setting ticket #INC-{ticket.get('id')} to 2")
+        logs(f"Setting ticket #INC-{ticket.get('id')} to 2")

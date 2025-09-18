@@ -1,4 +1,3 @@
-import os
 from root.logger import logs
 
 path = "/message/greeting.txt"

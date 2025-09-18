@@ -1,10 +1,8 @@
-from json.decoder import JSONDecodeError
 import requests
 from requests.auth import HTTPBasicAuth
 from root.logger import logs
-from root.sql.departments import add_dep_db
+from root.sql.departments import add_dep_db, load_dep_db
 import os
-import json
 
 filepath = "/req-files/departments.json"
 
@@ -33,6 +31,8 @@ def get_departments(count):
 
         save_departments(departments)
 
+        departments = load_dep_db()
+
         return departments
 
     else:
@@ -48,19 +48,11 @@ def save_departments(departments):
     logs("Succefully cached departments to departments.db")
 
 def load_departments():
-    try:
-        with open(filepath, "r") as file:
-            departments = json.load(file)
 
-        logs("Successfylly loaded cached departments")
-        return departments
+    departments = load_dep_db()
 
-    except FileNotFoundError:
-        logs("Not able to load departments from cache, not able to find departments.json")
-         
-        return None
+    logs("Successfylly loaded cached departments")
 
-    except JSONDecodeError:
-        logs("File departments.json empty, not able to load any departments")
+    return departments
 
-        return None
+
